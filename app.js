@@ -1,7 +1,8 @@
 const itemTemplate = document.querySelector("#list-item-template");
 const list = document.querySelector(".list-items > ul");
 const items = [];
-function storeItem(){
+let currentMenu = null;
+function storeItems(){
     localStorage.setItem('todo-list', JSON.stringify(items));
 
 }
@@ -28,6 +29,13 @@ function loadItems(){
     return storedItems;
 }
 
+function getAnimationDuration(node){
+    const style = window.getComputedStyle(node);
+    let duration = style.getPropertyValue('--animation-duration');
+    duration = parseFloat(duration);
+    return duration;
+}
+
 function displayItem(item, atTop = false, appear = false){
     if (atTop){
         items.unshift(item);
@@ -51,7 +59,7 @@ function displayItem(item, atTop = false, appear = false){
 
     itemNode.addEventListener('click', (e) => {
         item.checked = !item.checked;
-        storeItem();
+        storeItems();
         if(item.checked){
             itemNode.classList.add('checked');
         }
@@ -63,10 +71,43 @@ function displayItem(item, atTop = false, appear = false){
 
     const importantButton=itemNode.querySelector('.list-item__important');
     importantButton.addEventListener('click', (e) => {
+        e.stopPropagation();
         item.important = !item.important;
         itemNode.classList.toggle('important');
-        storeItem();
+        storeItems();
     });
+
+    const menuButton = itemNode.querySelector('.list-item__menu-button');
+    const menuBase = itemNode.querySelector('.list-item__menu-base');
+    menuButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        if (currentMenu){
+            currentMenu.classList.remove('open');
+            currentMenu = null;
+        }
+        
+        menuBase.classList.add('open');
+        currentMenu = menuBase;
+    });
+    menuBase.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menuBase.classList.remove('open');
+        currentMenu = null;
+    });
+
+    const deleteButton = itemNode.querySelector('.list-item__delete-button');
+    deleteButton.addEventListener('click', () => {
+        itemNode.classList.add('deleted');
+        const duration = getAnimationDuration(deleteButton);
+        setTimeout(() => {
+            const index = items.indexOf(item);
+            items.splice(index, 1);
+            storeItems();
+            list.removeChild(itemNode);
+        }, duration);
+    });
+
     if (atTop){
         list.prepend(itemNode);
     }
@@ -102,13 +143,11 @@ function addItem(){
         checked: false,
     };
     displayItem(newItem, true, true);
-    storeItem();
+    storeItems();
     addTodoinput.value = '';
 
     addTodoButton.classList.add('sending');
-    const style = window.getComputedStyle(addTodoButton);
-    let duration = style.getPropertyValue('--animation-duration');
-    duration = parseFloat(duration);
+    const duration = getAnimationDuration(addTodoButton);
 
     setTimeout(() => {
         addTodoButton.classList.remove('sending');
