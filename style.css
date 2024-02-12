@@ -19,10 +19,12 @@ main{
     --width: 19rem;
     --height: 35rem;
     --hi-primary-rgb: 8, 136, 178;
+    --hi-secondary-rgb: 38, 183, 150;
     --hi-primary: rgb(var(--hi-primary-rgb));
-    --hi-secondary: rgb(38, 183, 150);
+    --hi-secondary: rgb(var(--hi-secondary-rgb));
     --hi-fg: white;
     --bg: white;
+    --shadow-color: rgba(0,0,0,0.25);
     --border-radius: 2rem;
     --transition: 250ms ease-in-out;
     --fg-muted: rgba(0, 0, 0, 0.3);
@@ -84,14 +86,15 @@ main{
 .list-item{
 
     
-
+    position: relative;
     display:grid;
     grid-template-rows: 1rem;
-    grid-template-columns: 1rem 1fr 1rem;
+    grid-template-columns: 1rem 1fr 1rem 1rem;
     gap: 1rem;
     padding: 1rem;
     border-radius: calc(0.5*var(--border-radius));
     cursor: pointer;
+    overflow: hidden;
 }
 .list-item:hover{
     background-color: rgba(var(--hi-primary-rgb),0.2);
@@ -114,6 +117,25 @@ main{
 .list-item.appear{
     animation: appear calc(var(--animation-duration) * 1ms) ease-in-out;
 }
+
+@keyframes disappear {
+    0%{
+        background-color: transparent;
+    }
+    50%{
+        clip-path: circle(100% at 50% 50%);
+        background-color: rgba(var(--hi-primary-rgb), 0.2);
+    }
+    100%{
+        clip-path: circle(0 at 100% 50%);
+        background-color: rgba(var(--hi-primary-rgb), 0.2);
+    }
+}
+
+.list-item.deleted{
+    animation: disappear calc(var(--animation-duration) * 1ms) ease-in-out;
+}
+
 .list-item__checkmark{
     place-self: center;
     display: grid;
@@ -168,8 +190,64 @@ main{
     color: var(--hi-primary);
 }
 
+.list-item__important path{
+    transition: fill var(--transition);
+}
+
 .list-item.important .list-item__important path{
     fill: var(--hi-primary);
+}
+
+.list-item__menu-base{
+    --padding-right: 1rem;
+    --button-size: 1rem;
+    --fold-tarnsition: 750ms cubic-bezier(0.66, 0.03, 0, 1.015);
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--button-size);
+    justify-content: end;
+    align-items: center;
+    gap: 1rem;
+    padding-right: var(--padding-right);
+    background: rgba(var(--hi-secondary-rgb), 0.2);
+    clip-path: circle(0 at calc(
+        100% - var(--padding-right)
+        - (0.5 * var(--button-size))) 50%);
+    transition: clip-path var(--fold-tarnsition);
+}
+
+.list-item__menu-base.open{
+    clip-path: circle(200% at calc(
+        100%
+        - var(--padding-right)
+        - (0.5 * var(--button-size))) 50%);
+}
+
+.list-item__menu-base::after{
+    --size: 20rem;
+    --y-offset: 1.5rem;
+    content: "";
+    position: absolute;
+    right: calc(-1 * var(--size) / 2);
+    top: calc(-1 * var(--size) / 2 + var(--y-offset));
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: var(--hi-secondary);
+    box-shadow: -4px 0px 8px 0px var(--shadow-color);
+    z-index: -1;
+}
+
+.list-item__menu-base a{
+    --hi-color: white;
+    min-height: 1rem;
+    color: white;
 }
 
 .navbar{
@@ -262,7 +340,7 @@ main{
     bottom: 50%;
     border-radius: 50%;
     opacity: 0;
-    background: var(--hi-primary);
+    background: var(--hi-color);
 
     transition: 
     left var(--transition),
