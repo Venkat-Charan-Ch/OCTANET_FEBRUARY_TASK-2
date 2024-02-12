@@ -28,7 +28,7 @@ function loadItems(){
     return storedItems;
 }
 
-function displayItem(item, atTop = false){
+function displayItem(item, atTop = false, appear = false){
     if (atTop){
         items.unshift(item);
     }
@@ -45,6 +45,10 @@ function displayItem(item, atTop = false){
     if(item.checked){
         itemNode.classList.add('checked');
     }
+    if (item.important){
+        itemNode.classList.add('important');
+    };
+
     itemNode.addEventListener('click', (e) => {
         item.checked = !item.checked;
         storeItem();
@@ -57,11 +61,21 @@ function displayItem(item, atTop = false){
         
     });
 
+    const importantButton=itemNode.querySelector('.list-item__important');
+    importantButton.addEventListener('click', (e) => {
+        item.important = !item.important;
+        itemNode.classList.toggle('important');
+        storeItem();
+    });
     if (atTop){
         list.prepend(itemNode);
     }
     else{
         list.appendChild(itemNode);
+    }
+
+    if (appear){
+        itemNode.classList.add('appear');
     }
     
 }
@@ -87,9 +101,19 @@ function addItem(){
         title,
         checked: false,
     };
-    displayItem(newItem, true);
-    storeItems();
+    displayItem(newItem, true, true);
+    storeItem();
     addTodoinput.value = '';
+
+    addTodoButton.classList.add('sending');
+    const style = window.getComputedStyle(addTodoButton);
+    let duration = style.getPropertyValue('--animation-duration');
+    duration = parseFloat(duration);
+
+    setTimeout(() => {
+        addTodoButton.classList.remove('sending');
+    }, duration);
+
 }
 
 addTodoButton.addEventListener('click',()=>{
