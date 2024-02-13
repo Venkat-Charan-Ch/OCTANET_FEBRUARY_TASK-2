@@ -10,14 +10,7 @@ function storeItems(){
 function loadItems(){
     let storedItems = localStorage.getItem('todo-list');
     if (!storedItems){
-        return[
-            { title: 'Setup code', checked:false},
-            { title: 'Fetch Meds', checked:false},
-            { title: 'Get Groceries', checked:false},
-            { title: 'Cook Food', checked:false},
-            { title: 'Wash Dishes', checked:false},
-            { title: 'Laundry', checked:false}
-        ];
+        return[];
     }
     try{
         storedItems = JSON.parse(storedItems);
@@ -43,8 +36,6 @@ function displayItem(item, atTop = false, appear = false){
     else{
         items.push(item);
     }
-    
-    items.push(item);
     const itemNode = itemTemplate.content.firstElementChild.cloneNode(true);
     const itemTitle= itemNode.querySelector('.list-item__title > *');
     
@@ -159,7 +150,19 @@ addTodoButton.addEventListener('click',()=>{
     addItem();
 })
 
+addTodoinput.addEventListener('keyup', (e) => {
+    if (e.altKey || e.shiftKey || e.ctrlKey) {
+      return;
+    }
+  
+    if (e.key === 'Enter') {
+      addItem();
+    } else if (e.key === 'Escape') {
+      addTodoinput.value = '';
+    }
+  }, true);
+
 const currentItems= loadItems();
-currentItems.forEach((item)=> {
+currentItems.forEach((item) => {
     displayItem(item);
 });
